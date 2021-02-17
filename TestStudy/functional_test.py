@@ -1,0 +1,40 @@
+from selenium import webdriver
+import unittest
+
+
+class NewVisitorTest(unittest.TestCase):
+
+    def setUp(self):
+        self.browser = webdriver.Chrome('C:\chromedriver_win32/chromedriver')
+
+    def tearDown(self):
+        self.browser.quit()
+
+    def test_can_start_a_list_and_retrieve_it_later(self):
+        # 멋진 작업목록 온라인 어플이 나왔다는 소식에 해당 사이트에 접속한다.
+        self.browser.get('http://localhost:8000')
+
+        # 웹 페이지 타이틀과 헤더가 'To-Do' 를 표시하고 있다.
+        self.assertIn('To-Do', self.browser.title)
+        self.fail('Finish the test!')
+
+# 나는 바로 작업을 추가해본다
+
+# "공작깃털 사기" 라고 텍스트 상자에 입력한다
+
+# 엔터키를 치면 페이지가 갱신되고 작업 목록에
+# "1: 공작깃털 사기" 아이템이 추가된다
+
+# 추가 아이템을 입력할 수 있는 여분의 텍스트 상자가 존재한다
+# 다시 "공작깃털을 이용해서 그물 만들기" 라고 입력한다
+
+# 페이지는 다시 갱신되고, 두 개 아이템이 목록에 보인다
+# 나는 사이트가 입력한 목록을 저장하고 있는지 궁금하다.
+# 사이트는 나를 위한 특정 URL 을 생성한다
+# 이때 URL 에 대한 설명도 함께 제공된다
+
+# 해당 URL 에 접속하면 내가 만든 작업 목록이 그래도 있는 것을 확인할 수 있다
+
+# 만족하고 잠자리에 든다
+if __name__ == '__main__':
+    unittest.main(warnings='ignore')
