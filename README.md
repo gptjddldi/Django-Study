@@ -182,3 +182,15 @@ def sprinkle_list(request):
    class FruityFlavorView(Mixin1, Mixin2, TemplateView):
        pass
    ```
+
+
+
+## 클린 코드를 위한 테스트 주도 개발
+
+ ### CH 3. 뷰를 위한 단위 테스트
+  - 뷰를 위한 테스트는 HTML 형식의 응답을 반환하는 함수를 작성한다.
+  - 기능테스트와 단위테스트.. 단위 테스트를 먼저 다 통과한 뒤(python manage.py test) ->
+기능테스트 실행(python functional_test.py)
+    
+ ### CH 4. 왜 테스트를 하는 것인가?
+  - 상수는 테스트하지 않는다. 상수를 테스트하지 않고 템플릿을 이용하여 렌더링한다. (render_to_string 사용)
