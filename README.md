@@ -96,3 +96,89 @@ unit test 는 개발자 관점에서 app 의 내부를 테스트하는 것, func
 4. 기능 테스트를 재실행해서 통과하는지 확인한다.
 5. 기능 테스트가 완전해질 때까지 2~4 번을 반복한다.
 ```
+
+비즈니스 로직이란 업무에 필요한 데이터 처리를 수행하는 응용프로그램의 일부를 말한다. 
+이것은 데이터 입력, 수정, 조회 등을 수행하는 루틴, 좀더 엄밀히 말하면 보이는 것의 그 뒤에서 일어나는 각종 처리를 의미한다
+# TIL 21/02/18
+
+## Two Scoops of Django
+
+### CH 7. 쿼리와 데이터베이스 레이어
+ - 쿼리를 명확하게 하기 위해 지연 연산 이용하기
+```python
+from django.models import Q
+from django.models import Promo
+
+# without lazy evaluation (BAD)
+def func(**kwargs):
+    #...
+    return Promo.objects.active().filter(Q(name__startswith==name) |
+                                         Q(description__icontains=name))
+
+# with lazy evaluation
+
+def func(**kwargs):
+    results = Promo.objects.active()
+    results = filter(Q(name__startswith==name) | Q(description__icontains=name))
+    return results
+```
+ - 쿼리 표현식 [Query Expressions](https://docs.djangoproject.com/en/dev/ref/models/expressions/)
+ - ROW SQL 지양하고 ORM 을 적극 사용
+
+### CH 8, 9, 10. Function Based View(FBV) 와 Class Based View (CBV)
+ - URL namespace 사용하기
+ 1. FBV
+   - 코드 재사용, 단순한 처리, Presentation Logic 을 처리 (가능한 Business Logic 은 여기서 처리하지 않도록)
+   - 전역적 코드 재사용을 위해 utils 에 함수를 만들거나, decorator 로 만들어서 사용할 수 있음
+
+utils 사용
+```python
+#example/utils.py
+from django.core.exceptions import PermissionDenied
+
+def check_sprinkle(request):
+    if request.user.can_sprinkle or request.user.is_staff:
+        # 여기에서 request 객체에 속성을 변경하거나 제거하거나 추가할 수 있음
+        return request
+    raise PermissionDenied
+
+# example/views.py
+from example.utils import check_sprinkle
+
+def sprinkle_list(request):
+    request = check_sprinkle(request) #
+    return render()
+```
+
+decorator 사용
+```python
+#example/decorator.py
+from . import utils
+from functools import wraps
+
+def can_sprinkle(view_func):
+   @wraps(view_func)
+   def new_view_func(request, *args, **kwargs):
+        request = utils.check_sprinkle(request)
+        response = view_func(request, *args, **kwargs)
+        return response
+   return new_view_func
+
+# example/views.py
+from example.decorator import can_sprinkle
+
+@can_sprinkle
+def sprinkle_list(request):
+
+    return render()
+```
+
+ 2. CBV
+   - mixins 사용하기 
+     - 장고가 제공하는 기본 뷰는 항상 오른쪽으로 진행한다. 
+     - 믹스인은 기본 뷰에서부터 왼쪽으로 진행한다. 
+     - 믹스인은 파이썬의 기본 객체 타입을 상속해야 한다.
+   ```python
+   class FruityFlavorView(Mixin1, Mixin2, TemplateView):
+       pass
+   ```
