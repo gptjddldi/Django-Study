@@ -34,17 +34,23 @@ class NewVisitorTest(unittest.TestCase):
         # 엔터키를 치면 페이지가 갱신되고 작업 목록에
         # "1: 공작깃털 사기" 아이템이 추가된다
         inputbox.send_keys(Keys.ENTER)
-
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-            any(row.text =='1: 공작깃털 사기' for row in rows),
-            "신규 작업이 테이블에 포합되지 않는다."
-        )
+
+        self.assertIn('1: 공작깃털 사기', [row.text for row in rows])
+
         # 추가 아이템을 입력할 수 있는 여분의 텍스트 상자가 존재한다
         # 다시 "공작깃털을 이용해서 그물 만들기" 라고 입력한다
-        self.fail('Finish the test!')
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('공작 깃털을 이용해서 그물 만들기')
+        inputbox.send_keys(Keys.ENTER)
+        
         # 페이지는 다시 갱신되고, 두 개 아이템이 목록에 보인다
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn('1: 공작깃털 사기', [row.text for row in rows])
+        self.assertIn('2: 공작깃털을 이용해서 그물 만들기', [row.text for row in rows])
+
         # 나는 사이트가 입력한 목록을 저장하고 있는지 궁금하다.
         # 사이트는 나를 위한 특정 URL 을 생성한다
         # 이때 URL 에 대한 설명도 함께 제공된다
@@ -52,5 +58,7 @@ class NewVisitorTest(unittest.TestCase):
         # 해당 URL 에 접속하면 내가 만든 작업 목록이 그래도 있는 것을 확인할 수 있다
 
         # 만족하고 잠자리에 든다
+        self.fail('Finish the test!')
+
 if __name__ == '__main__':
     unittest.main(warnings='ignore')
