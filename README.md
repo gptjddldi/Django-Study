@@ -201,3 +201,107 @@ def sprinkle_list(request):
 ## 클린 코드를 위한 테스트 주도 개발
 
  ### CH 5. 사용자 입력 저장하기
+
+
+# TIL 21/03/22
+ ## postgreSQL Tutorial [Link](https://www.postgresqltutorial.com/)
+ 
+### SELECT
+   > - distinct, order by, where, limit, fetch, group by, having, inner join, left join, full outer join, cross join,
+   > - union, intersect, except
+   
+```postgresql
+SELECT selct_item1, select_item2,... FROM table_name;
+-- 만약 모든 항목을 retrieve 하고싶다면 (asterisk)* 사용 (보통 table 안에는 아주 많은 data가 있어 앱이 느려질 수 있으니 권장X)
+SELECT * FROM table_name;
+```
+
+![image](https://user-images.githubusercontent.com/75565774/111952092-ed878880-8b27-11eb-9f21-7c3e2d2db099.png)
+
+```postgresql
+select first_name, last_name, email from customer;
+```
+
+![image](https://user-images.githubusercontent.com/75565774/111952155-1019a180-8b28-11eb-8672-6d176b4104da.png)
+  - select with expressions (concatenation operator ||)
+  ```postgresql
+  select first_name || ' ' || last_name, email from customer;
+  -- first_name 과 last_name 사이에 ' '(space) 가 추가됨
+  ```
+
+
+- ORDER BY
+     - The *Order By* caluse allows you to sort rows returned by a SELECT caluse in ascending or descending order based on a sort experssoin.
+     (ascending is default.)
+     ```postgresql
+     select select_list from table_name order by sort_expression1 [ASC | DESC],
+     sort_expression2 [ASC | DESC];
+     ```
+       
+     ```postgresql
+     select first_name, last_name
+     from customer
+     order by
+     first_name ASC;
+     ```
+     ![img.png](img.png)
+  
+     ```postgresql
+     -- last_name 내림차순
+     select first_name, last_name
+     from customer
+     order by
+     last_name DESC;
+     ```
+     ![img_1.png](img_1.png)
+
+     ```postgresql
+     -- first_name 오름차순, last_name 내림차순 -> first_name 을 먼저 오름차순으로 정렬하고
+     -- 동일한 순위가 존재할 경우 last_name 내림차순을 기준으로 정렬함
+     select first_name, last_name
+     from customer
+     order by
+     first_name ASC,
+     last_name DESC;
+     ```
+     ![img_2.png](img_2.png)
+     - NULL
+     ```postgresql
+     ORDER BY sort_experssion [ASC | DESC] [NULLS FIRST | NULLS LAST]
+     ```
+  
+- DISTINCT
+     ```postgresql
+     select
+     distinct column1
+     from table_name;
+     ```
+     
+     ![img_3.png](img_3.png)
+     ```postgresql
+     select
+     distinct bcolor, fcolor
+     from distinct_demo
+     order by 
+     bcolor, fcolor
+         -- bcolor, fcolor 두 쌍에 대해 distinct 가 수행됨
+     ```
+     ![img_4.png](img_4.png)
+     - DISTINCT ON
+     ```postgresql
+     select distinct on(bcolor) bcolor, fcolor
+     from distinct_demo
+     order by bcolor, fcolor;
+        -- bcolor 에 대해서만 distinct 수행
+     ```
+     ![img_5.png](img_5.png)
+
+- WHERE
+     ```postgresql
+     select select_list
+     from table_name
+     where condition
+     order by sort_expression
+     -- 순서 지켜야함
+     ```
+  where condition 은 true 또는 false 로 표현해야함
