@@ -210,98 +210,189 @@ def sprinkle_list(request):
    > - distinct, order by, where, limit, fetch, group by, having, inner join, left join, full outer join, cross join,
    > - union, intersect, except
    
-```postgresql
-SELECT selct_item1, select_item2,... FROM table_name;
--- 만약 모든 항목을 retrieve 하고싶다면 (asterisk)* 사용 (보통 table 안에는 아주 많은 data가 있어 앱이 느려질 수 있으니 권장X)
-SELECT * FROM table_name;
-```
-
-![image](https://user-images.githubusercontent.com/75565774/111952092-ed878880-8b27-11eb-9f21-7c3e2d2db099.png)
-
-```postgresql
-select first_name, last_name, email from customer;
-```
-
-![image](https://user-images.githubusercontent.com/75565774/111952155-1019a180-8b28-11eb-8672-6d176b4104da.png)
-  - select with expressions (concatenation operator ||)
   ```postgresql
-  select first_name || ' ' || last_name, email from customer;
-  -- first_name 과 last_name 사이에 ' '(space) 가 추가됨
+  SELECT selct_item1, select_item2,... FROM table_name;
+  -- 만약 모든 항목을 retrieve 하고싶다면 (asterisk)* 사용 (보통 table 안에는 아주 많은 data가 있어 앱이 느려질 수 있으니 권장X)
+  SELECT * FROM table_name;
   ```
 
+  ![image](https://user-images.githubusercontent.com/75565774/111952092-ed878880-8b27-11eb-9f21-7c3e2d2db099.png)
 
-- ORDER BY
-     - The *Order By* caluse allows you to sort rows returned by a SELECT caluse in ascending or descending order based on a sort experssoin.
-     (ascending is default.)
-     ```postgresql
-     select select_list from table_name order by sort_expression1 [ASC | DESC],
-     sort_expression2 [ASC | DESC];
-     ```
-       
-     ```postgresql
-     select first_name, last_name
-     from customer
-     order by
-     first_name ASC;
-     ```
-     ![img.png](img.png)
+  ```postgresql
+  select first_name, last_name, email from customer;
+  ```
+
+  ![image](https://user-images.githubusercontent.com/75565774/111952155-1019a180-8b28-11eb-8672-6d176b4104da.png)
+    - select with expressions (concatenation operator ||)
+    ```postgresql
+    select first_name || ' ' || last_name, email from customer;
+    -- first_name 과 last_name 사이에 ' '(space) 가 추가됨
+    ```
+
+
+  - ORDER BY
+      - The *Order By* caluse allows you to sort rows returned by a SELECT caluse in ascending or descending order based on a sort experssoin.
+      (ascending is default.)
+      ```postgresql
+      select select_list from table_name order by sort_expression1 [ASC | DESC],
+      sort_expression2 [ASC | DESC];
+      ```
+        
+      ```postgresql
+      select first_name, last_name
+      from customer
+      order by
+      first_name ASC;
+      ```
+      ![img.png](img.png)
+    
+      ```postgresql
+      -- last_name 내림차순
+      select first_name, last_name
+      from customer
+      order by
+      last_name DESC;
+      ```
+      ![img_1.png](img_1.png)
+
+      ```postgresql
+      -- first_name 오름차순, last_name 내림차순 -> first_name 을 먼저 오름차순으로 정렬하고
+      -- 동일한 순위가 존재할 경우 last_name 내림차순을 기준으로 정렬함
+      select first_name, last_name
+      from customer
+      order by
+      first_name ASC,
+      last_name DESC;
+      ```
+      ![img_2.png](img_2.png)
+      - NULL
+      ```postgresql
+      ORDER BY sort_experssion [ASC | DESC] [NULLS FIRST | NULLS LAST]
+      ```
+    
+  - DISTINCT
+      ```postgresql
+      select
+      distinct column1
+      from table_name;
+      ```
+      
+      ![img_3.png](img_3.png)
+      ```postgresql
+      select
+      distinct bcolor, fcolor
+      from distinct_demo
+      order by 
+      bcolor, fcolor
+          -- bcolor, fcolor 두 쌍에 대해 distinct 가 수행됨
+      ```
+      ![img_4.png](img_4.png)
+      - DISTINCT ON
+      ```postgresql
+      select distinct on(bcolor) bcolor, fcolor
+      from distinct_demo
+      order by bcolor, fcolor;
+          -- bcolor 에 대해서만 distinct 수행
+      ```
+      ![img_5.png](img_5.png)
+
+  - WHERE
+
+    where condition 을 만족시키는 rows 를 select 한다!
+      ```postgresql
+      select select_list
+      from table_name
+      where condition
+      order by sort_expression
+      -- 순서 지켜야함
+      ```
+    |operator|description|
+    |----|----|
+    |=|Equal|
+    |>,<|greater, less than|
+    |<>, !=|Not equal|
+    |AND, OR|Logical operator AND, OR|
+    |IN []|리스트에 들어있는 Value 가 있으면 True|
+    |BETWEEN n AND m|n과 m 사이에 Value 가 있으면 True|
+    |LIKE string|string 와 같은 패턴이 있으면 True|
+    |IS NULL|Value is Null 이면 True|
+    |NOT|!|
+
+    ```
+    SELECT
+      first_name,
+      last_name
+    FROM
+      customer
+    WHERE
+      first_name LIKE 'ANN%'
+    -- ANN% : ANN 으로 시작하는 단어
+    -- %ANN : ANN 으로 끝나는 단어
+    -- '_N_' : True
+    -- 'A_' : False
+    ```
+  - LIMIT
+
+    리턴되는 rows 의 갯수를 제한함
+    ```
+    SELECT select_list
+    FROM table_name
+    ORDER BY table_name
+    LIMIT row_count OFFSET row_to_skip
+    ```
+    row_count = 0 => empty set is returned.
+
+    row_count = NULL => LIMIT clause is ignored
+
+    OFFSET : row_to_skip 이후 rows 를 리턴함
+
+    Pagination 생각하면 될듯
+    ```
+    SELECT film_id, title, release_year
+    FROM film
+    ORDER BY film_id
+    LIMIT 4 OFFSET 3;
+    ```
+
+  - FETCT
+  ```
+  OFFSET start {ROW | ROWS}
+  FETCH {FIRST | NEXT} [row_count] {ROW | ROWS} ONLY
+  ```
+  - start 부터 시작해서 row_count 까지만 가져온다
   
-     ```postgresql
-     -- last_name 내림차순
-     select first_name, last_name
-     from customer
-     order by
-     last_name DESC;
-     ```
-     ![img_1.png](img_1.png)
+  - ROW, ROWS 같은 말
+  - FIRST, NEXT 같은 말
 
-     ```postgresql
-     -- first_name 오름차순, last_name 내림차순 -> first_name 을 먼저 오름차순으로 정렬하고
-     -- 동일한 순위가 존재할 경우 last_name 내림차순을 기준으로 정렬함
-     select first_name, last_name
-     from customer
-     order by
-     first_name ASC,
-     last_name DESC;
-     ```
-     ![img_2.png](img_2.png)
-     - NULL
-     ```postgresql
-     ORDER BY sort_experssion [ASC | DESC] [NULLS FIRST | NULLS LAST]
-     ```
+  - start 는 0 이상의 자연수, default zero
   
-- DISTINCT
-     ```postgresql
-     select
-     distinct column1
-     from table_name;
-     ```
-     
-     ![img_3.png](img_3.png)
-     ```postgresql
-     select
-     distinct bcolor, fcolor
-     from distinct_demo
-     order by 
-     bcolor, fcolor
-         -- bcolor, fcolor 두 쌍에 대해 distinct 가 수행됨
-     ```
-     ![img_4.png](img_4.png)
-     - DISTINCT ON
-     ```postgresql
-     select distinct on(bcolor) bcolor, fcolor
-     from distinct_demo
-     order by bcolor, fcolor;
-        -- bcolor 에 대해서만 distinct 수행
-     ```
-     ![img_5.png](img_5.png)
+  - row_count 는 1 이상의 자연수, default 1
 
-- WHERE
-     ```postgresql
-     select select_list
-     from table_name
-     where condition
-     order by sort_expression
-     -- 순서 지켜야함
-     ```
-  where condition 은 true 또는 false 로 표현해야함
+  - FETCH 는 ORDER BY 와 함께 쓰여야 함. 그래야 뭘 가져올 지 알 수 있다.
+
+  - FETCH vs LIMIT : 비슷함. 근데 FETCH 가 SQL 표준임
+  ```
+  SELECT film_id, title
+  FROM film
+  ORDER BY title
+  OFFSET 5 ROWS
+  FETCH FIRST 5 ROW ONLY;
+  ```
+### JOIN
+
+  > - inner join, left join, right join, full outer join
+  > - combine columns from one or more tables based on the commone columns
+
+  - INNER JOIN (교집합)
+  ```
+  SELECT c.curtomer_id, first_name, last_name, amount, payment_date
+  FROM customer c
+  INNTER JOIN payment p
+  ON p.curstomer_id = c.customer_id
+  -- USING(customer_id) 와 같음
+  ORDER BY payment_date;
+  ```
+
+  - LEFT JOIN
+    - LEFT OUTER JOIN
+    - LEFT INNER JOIN
