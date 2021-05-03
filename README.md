@@ -396,3 +396,26 @@ def sprinkle_list(request):
   - LEFT JOIN
     - LEFT OUTER JOIN
     - LEFT INNER JOIN
+
+
+# TIL 21.05.03
+
+## Docker-Compose 로 로컬 개발환경 구축하기
+
+잘은 모르겠다. 일단 Docker-Compose 는 여러개의 어플리케이션? 서버? 를 동시에 실행할 수 있도록 모아주는 도구다.
+
+그래서 배포용 docker, 개발용 docker 두 개를 만드는 게 좋을 것같다.
+
+개발용 docker 에서는 python manage.py runserver 을 사용하고 배포용은 gunicorn 을 사용한다.
+
+```
+WORKDIR /djangoProject
+ADD requirements.txt /djangoProject
+ADD ./requirements/ /djangoProject/requirements/
+RUN pip3 install -r requirements.txt
+
+ADD . /djangoProject/
+```
+상당히 애먹은 부분이다. WORKDIR 과 ADD 를 잘 생각하자
+
+docker compose 에서 django, nginx, redis, database 등을 한 번에 실행해줄 수 있다.
