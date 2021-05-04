@@ -419,3 +419,18 @@ ADD . /djangoProject/
 상당히 애먹은 부분이다. WORKDIR 과 ADD 를 잘 생각하자
 
 docker compose 에서 django, nginx, redis, database 등을 한 번에 실행해줄 수 있다.
+
+# TIL 21.05.03
+
+### Implement Caching
+
+Imagine the total number of network calls that our application will make as users start to visit our site. If 1,000 users hit the API that retrieves cookbook recipes, then our application will query the database 3,000 times and a new template will be rendered with each request. That number only grows as our application scales. Luckily, this view is a great candidate for caching. The recipes in a cookbook rarely change, if ever. Also, since viewing cookbooks is the central theme of the app, the API retrieving the recipes is guaranteed to be called frequently.
+
+만약 천명의 유저가 내 사이트에 들어와 pin api 를 사용한다면? 수천 번의 쿼리가 db 를 HIT 할 것이고, 사람이 증가할 수록 그 횟수는 계속 증가한다.
+이럴 때 캐시를 사용하여 db 에 HIT 하는 횟수를 줄일 수 있는 듯하다.
+
+### Cacheops 적용하기
+
+Cacheops 는 Django 에 Redis Cache 를 쉽게 적용하고 관리할 수 있도록 돕는 라이브러리이다.
+
+Cacheops 의 가장 큰 장은 Django ORM 에 캐시를 쉽게 적용할 수 있다는 점이다. 
