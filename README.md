@@ -434,3 +434,59 @@ Imagine the total number of network calls that our application will make as user
 Cacheops 는 Django 에 Redis Cache 를 쉽게 적용하고 관리할 수 있도록 돕는 라이브러리이다.
 
 Cacheops 의 가장 큰 장은 Django ORM 에 캐시를 쉽게 적용할 수 있다는 점이다. 
+
+# TIL 21.05.06
+
+### Docker Redis CLI
+
+도커에서 Redis Server 을 실행하려면 그냥 docker pull redis:alpine 을 해서 받아와 redis-server 을 실행하면 되는데, redis-cli 도 동시에 실행하여 통신 해야 하기 때문에 Docker network 를 구성해야 한다.
+
+근데 이미 구성했는데.. `sudo docker-compose exec redis redis-cli` 다음 명령어로 redis-cli 에 진입할 수 있고.
+
+내 경우엔 pin.pin 모델을 캐시 적용했으니
+
+```
+# settings.py
+CACHEOPS_LRU = True
+
+CACHEOPS = {
+    'pin.pin': {'ops': 'get', 'timeout': 60*15},  # Pin Model 을 GET 으로 조회하는 경우 db 보다 캐시를 먼저 본다.
+}
+
+CACHEOPS_REDIS = "redis://redis:6379"
+
+CACHEOPS_DEFAULTS = {
+    'timeout': 60 * 60 * 1, # 1시간
+    'cache_on_save': True # save()할때 캐시 할지
+}
+```
+pin list api 를 호출하면 cache 를 보고 불러온다.
+
+### Redis Celery
+
+비동기 처리.. 어디에 쓸 수 있을까?
+
+사용자가 원하는 태그들을 핀터레스트 사이트에서 크롤링해서 가져온다면 ? 클라이언트 단도 추가해야 하고 시간이 걸릴 것 같음;
+
+그나마 생각해본다면 비동기 이메일 전송? 굿..
+
+### CI / CD
+
+#### CI Continuous Integration
+
+지속적 통합을 의미하는데, 여러 사람이 작업한 여러 작업을 하나로 원활하게 병합하는 것이다.
+
+예를들어 하나의 프로젝트에 3명의 개발자가 동시에 개발한다면, 세 사람의 작업 코드를 합치는 건 매우 번거로운 일이다.
+
+현대의 개발 방식은 GIT 에 각자의 Branch 를 두어 작업을 하고, 하나의 Master Branch 에 합치고 테스트하는 행위를 반복한다.
+
+Jenkins 는 이렇게 여러 개의 Branch 를 병합함에 있어서 테스트 코드 실행 등 모든 커밋이 master Branch 에 안정적으로 반영될 수 있도록 돕는다.
+
+
+#### CD Continuous Delivery or Deployment
+
+CI 로 합쳐진 Master Branch 의 코드를 실제 사용자가 사용하는 Production 환경에 쉽고 안정적으로 배포하는 작업이다.
+
+
+
+
