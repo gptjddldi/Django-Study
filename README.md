@@ -487,6 +487,40 @@ Jenkins 는 이렇게 여러 개의 Branch 를 병합함에 있어서 테스트 
 
 CI 로 합쳐진 Master Branch 의 코드를 실제 사용자가 사용하는 Production 환경에 쉽고 안정적으로 배포하는 작업이다.
 
+# TIL 21.05.07
 
+### DJANGO ORM, N+1 Problem
+
+ORM 을 이용해 DB 에 SQL 쿼리를 생성할 때 두 가지 전략이 있다.
+
+1. Lazy Loading : ORM 이 정말 필요하기 전까지(evaluate) SQL 을 호출하지 않는다. 그 전까진 DB 를 HIT 하지 않는다.
+2. Eager Loading : ORM 을 통해 객체를 생성한 시점에 SQL 을 호출한다. 
+
+Django ORM 은 1 번 방식인 Lazy Loading 을 사용한다.
+
+이러한 Lazy Loading 을 사용할 때 N+1 Problem 이 발생할 수 있다.
+
+N+1 Problem 은 릴레이션의 1:N 구조에서 N 에서 1 을 루프문을 통해 호출할 때, N+1 번의 쿼리가 발생하는 문제이다.
+
+```
+blogs = Blog.objects.all()
+for blog in blogs:
+  print(blog.author.name)
+```
+위 코드는 처음 Blog 모델을 all() 을 통해 전부 가져오는 쿼리가 1번 발생한다. 이때 author 은 pk 이기 때문에 author 의 정보를 한번에 끌어오지 못하고 반복문 안에서 author.name 을 호출할 때 마다 쿼리가 발생하게 된다. 따라서 1 + N 번의 쿼리가 발생하게 되는 것이다.
+
+이는 ORM 이 가지는 Lazy Loading 특성상 반복문 안에서 데이터가 필요한 시점에 쿼리가 발생해 생긴 문제로, 이를 해결하려면 blog 릴레이션과 author 릴레이션 에 해당하는 데이터가 반복문 진입 전에 캐싱되어야 한다.
+
+즉 Eager Loading 이 필요하다는 것이고, 이를 위해서 장고는 **prefetch_related**, **select_related** 메서드를 제공한다.  
+
+prefetch_related 는 추가 쿼리를 던져 이를 캐싱하고, select_related 는 join 을 사용해 한번에 쿼리를 보낸다.
+
+위의 N+1 문제는 
+```
+blogs = Blog.objects.all().select_related("author")
+```
+을 통해 해결할 수 있다.
+
+prefetch_related 는 별개의 쿼리문을 던진 뒤 반환된 결과들을 python 내부에서 join 하는 방식이다. 추가적인 쿼리가 발생한다는 단점이 있지만 대신 foreign key 를 가지지 않아도 사용할 수 있고, m:n 관계 또는 parent table 에서 사용할 수 있다 (1:N 관계에서 1) 
 
 
