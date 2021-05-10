@@ -524,3 +524,18 @@ blogs = Blog.objects.all().select_related("author")
 prefetch_related 는 별개의 쿼리문을 던진 뒤 반환된 결과들을 python 내부에서 join 하는 방식이다. 추가적인 쿼리가 발생한다는 단점이 있지만 대신 foreign key 를 가지지 않아도 사용할 수 있고, m:n 관계 또는 parent table 에서 사용할 수 있다 (1:N 관계에서 1) 
 
 
+# TIL 21.05.10
+
+### docker - compose 이용하여 azure container instances 에 배포하기
+
+3일 내내 힘들게 찾아봤고, 무조건 까먹을 것 같고, 까먹으면 다시 못 찾을 것 같아서 정리함.
+
+1. Azure container Registory 는 Private Docker Hub 와 같은 역할을 함. Docker Hub 대신 azure 에 Custom Image 를 저장하는 것.
+2. Docker-compose 파일에서 빌드할 때 ACR 에서 이미지를 가져옴
+3. Docker - Compose 파일에서 Volume 설정.. 이거는 외부 볼륨을 가져올 수 있음. volumes driver 옵션을 이용해서 외부 볼륨과 연결할 수 있음
+4. 지금 내 프로젝트는 Azure Storage File Share 를 이용해 볼륨을 사용하고 있고.. 문제는 내 로컬에서 개발한 내용이 바로 올라가려면 일일이 올려야 한다는 점? 이부분은 추후에 Git Repo 로 바꾸는 편이 좋을 것 같음
+5. 하여튼 이렇게 ACR, Docker-compose 를 작성했으면 이제 ACI 를 만들면 됨.
+6. ACI 는 docker compose up 명령으로 자동으로 만들어 배포할 수 있는데, 이때 dokcer 은 일반 도커가 아님
+7. Docker context use <name> 을 통해 aci 를 만들 수 있는 context 로 바꿔야 함. 그런 context 를 만드는 명령어는 docker context create aci <name> 이거임. 여기서 알맞은 Subscrition 선택, Resource Group 선택해서 만들 수 있음
+8. 그렇게 context 를 변경하고 docker compose up 명령어를 실행하고 docker compose ps 를 실행하면 내 앱이 배포된 주소를 볼 수 있게 된다..!
+
